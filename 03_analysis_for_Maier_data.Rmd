@@ -1,0 +1,202 @@
+---
+title: "Downstream analysis Maier et al dataset"
+author:
+  - "trnguyen@ukaachen.de"
+date: "Last update on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    number_sections: true
+    df_print: paged
+    toc: true
+    toc_float:
+      toc_collapsed: false
+    toc_depth: 3
+    theme: lumen
+---
+  
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+$(document).ready(function() {
+  $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+  // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.height=10, fig.width=14}
+gc()
+rm(list = ls())
+
+#####----------------------------------------------------------------------#####
+##### preparation
+#####----------------------------------------------------------------------#####
+path.to.storage <- "/media/hieunguyen/HD01/storage"
+
+path.to.main.project.src <- "/home/hieunguyen/CRC1382/src_2023/AGBerres_SSchwarz"
+source(file.path(path.to.main.project.src, "00_import_libraries.R"))
+source(file.path(path.to.main.project.src, "00_helper_functions.R"))
+
+path.to.downloaded.Rdata <- file.path(path.to.storage, "AGBerres_Maier_et_al_Nature_pub", "human_dc.rd")
+load(path.to.downloaded.Rdata)
+
+path.to.outdir <- "/home/hieunguyen/CRC1382/outdir/AGBerres"
+path.to.main.output <- file.path(path.to.outdir, "human_dc_Maier_et_al_data")
+dir.create(path.to.main.output, showWarnings = FALSE, recursive = TRUE)
+
+path.to.03.output <- file.path(path.to.main.output, "03_output")
+dir.create(path.to.03.output, showWarnings = FALSE, recursive = TRUE)
+
+s.obj <- readRDS(file.path(path.to.03.output, "Maier_data_seurat_object.rds"))
+```
+
+
+
+# UMAP
+## UMAP: all clusters in this dataset
+```{r echo=FALSE, warning=FALSE, message=FALSE, include=TRUE, results='asis'}
+DimPlot(object = s.obj, reduction = "RNA_TSNE", label = TRUE, label.box = TRUE, repel = TRUE)
+```
+
+## UMAP: all cell types in this dataset
+```{r echo=FALSE, warning=FALSE, message=FALSE, include=TRUE, results='asis'}
+DimPlot(object = s.obj, reduction = "RNA_TSNE", label = TRUE, label.box = TRUE, repel = TRUE, group.by = "celltype")
+```
+
+# Differential gene expression analysis on clusters
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, include=TRUE, results='asis'}
+if (file.exists(file.path(path.to.03.output, "Maier_data_cluster_marker_genes.rds")) == FALSE){
+  cluster.markers <- FindAllMarkers(object = s.obj, assay = "RNA", test.use = "wilcox")
+  cluster.markers.raw <- cluster.markers
+  cluster.markers <- subset(cluster.markers, cluster.markers$p_val_adj <= 0.05 & cluster.markers$avg_log2FC >= 0)  
+  saveRDS(cluster.markers, file.path(path.to.03.output, "Maier_data_cluster_marker_genes.rds"))
+  saveRDS(cluster.markers.raw, file.path(path.to.03.output, "Maier_data_cluster_marker_genes.raw.rds"))
+} else {
+  cluster.markers <- readRDS(file.path(path.to.03.output, "Maier_data_cluster_marker_genes.rds"))
+}
+
+```
+
+## Tables: differentially expressed genes {.tabset}
+```{r echo=FALSE, warning=FALSE, results='asis', include=TRUE}
+cluster.markers %>% create_dt()
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, include=TRUE, results='asis'}
+for(cluster.id in sort(unique(cluster.markers$cluster))){
+  cat(paste("\n\n### Cluster: ", cluster.id, "##\n"))
+  tmp <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC)) %>%
+    mutate_if(is.numeric, round, 6)
+  row.names(tmp) <- NULL
+  print( htmltools::tagList(datatable(tmp, extensions = 'Buttons',
+                filter = "top",
+                options = list(dom = 'Blfrtip',
+                               buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                               lengthMenu = list(c(10,25,50,-1),
+                                                 c(10,25,50,"All")),
+                               columnDefs = list(list(
+                                 targets = "_all",
+                                 render = JS(
+                                   "function(data, type, row, meta) {",
+                                   "return type === 'display' && data != null && data.length > 100 ?",
+                                   "'<span title=\"' + data + '\">' + data.substr(0, 100) + '...</span>' : data;",
+                                   "}")
+                               ))
+                ))))
+  cat("\n \n")
+}
+```
+
+
+## Top-16 cluster markers feature plot {.tabset}
+
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+for (cluster.id in unique(cluster.markers$cluster)){
+  DefaultAssay(s.obj) <- "RNA"
+  tmp <- subset(cluster.markers, cluster.markers$cluster == cluster.id & cluster.markers$p_val_adj < 0.05) %>% 
+  rowwise %>% 
+  mutate_if(is.numeric, round, 6) %>% 
+  arrange(desc(avg_log2FC)) %>% head(16)
+  cat(sprintf("### Cluster %s \n", cluster.id))
+  p <- FeaturePlot(object = s.obj, reduction = "RNA_TSNE", features = tmp$gene, ncol = 4, ) 
+  print(p)
+  cat("\n \n")
+}
+```
+
+## Top-16 cluster markers dot plot {.tabset}
+
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+for (cluster.id in unique(cluster.markers$cluster)){
+  DefaultAssay(s.obj) <- "RNA"
+  tmp <- subset(cluster.markers, cluster.markers$cluster == cluster.id & cluster.markers$p_val_adj < 0.05) %>% 
+  rowwise %>% 
+  mutate_if(is.numeric, round, 6) %>% 
+  arrange(desc(avg_log2FC)) %>% head(16)
+  cat(sprintf("### Cluster %s \n", cluster.id))
+  p <- DotPlot(object = s.obj, features = tmp$gene) 
+  print(p)
+  cat("\n \n")
+}
+```
+
+## Top-16 cluster markers Violin plot {.tabset}
+
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+for (cluster.id in unique(cluster.markers$cluster)){
+  DefaultAssay(s.obj) <- "RNA"
+  
+  tmp <- subset(cluster.markers, cluster.markers$cluster == cluster.id & cluster.markers$p_val_adj < 0.05) %>% 
+  rowwise %>% 
+  mutate_if(is.numeric, round, 6) %>% 
+  arrange(desc(avg_log2FC)) %>% head(16)
+  cat(sprintf("### Cluster %s \n", cluster.id))
+  p <- VlnPlot(object = s.obj, features = tmp$gene, pt.size = 0) 
+  print(p)
+  cat("\n \n")
+}
+```
+
+# Merge with our dataset
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+if (file.exists(file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds")) == FALSE){
+  s.obj.lvpv <- readRDS(file.path(path.to.outdir, "220311_Berres_MiedIII_scCITEseq", "data_analysis", "01_output", "s_obj.annotated.integrated.tsne.rds"))
+  
+  ##### Integrate and transfer label
+  anchors <- FindTransferAnchors(reference = s.obj, query = s.obj.lvpv, dims = 1:25, query.assay = "RNA", reference.assay = "RNA", k.anchor = 200)
+  predictions <- TransferData(anchorset = anchors, refdata = s.obj$celltype)
+      
+  s.obj.lvpv <- AddMetaData(s.obj.lvpv, metadata = predictions$predicted.id, col.name = "Maier_prediction")
+  saveRDS(s.obj.lvpv, file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds"))  
+} else {
+  s.obj.lvpv <- readRDS(file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds"))
+}
+
+```
+
+
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+DimPlot(object = s.obj.lvpv, reduction = "INTE_TSNE", group.by = "Maier_prediction", label = TRUE, label.box = TRUE, repel = TRUE)
+```
+
+
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=20, fig.height=20}
+DimPlot(object = s.obj.lvpv, reduction = "INTE_TSNE", split.by = "Maier_prediction", label = TRUE, label.box = TRUE, repel = TRUE, ncol = 2)
+```
+
+Number of cells assigned to each cell type 
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+table(s.obj.lvpv@meta.data$Maier_prediction) %>% as.data.frame() %>% create_dt()
+```
+
+
