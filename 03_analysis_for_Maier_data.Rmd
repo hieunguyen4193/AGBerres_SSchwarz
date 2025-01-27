@@ -166,37 +166,3 @@ for (cluster.id in unique(cluster.markers$cluster)){
   cat("\n \n")
 }
 ```
-
-# Merge with our dataset
-```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
-if (file.exists(file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds")) == FALSE){
-  s.obj.lvpv <- readRDS(file.path(path.to.outdir, "220311_Berres_MiedIII_scCITEseq", "data_analysis", "01_output", "s_obj.annotated.integrated.tsne.rds"))
-  
-  ##### Integrate and transfer label
-  anchors <- FindTransferAnchors(reference = s.obj, query = s.obj.lvpv, dims = 1:25, query.assay = "RNA", reference.assay = "RNA", k.anchor = 200)
-  predictions <- TransferData(anchorset = anchors, refdata = s.obj$celltype)
-      
-  s.obj.lvpv <- AddMetaData(s.obj.lvpv, metadata = predictions$predicted.id, col.name = "Maier_prediction")
-  saveRDS(s.obj.lvpv, file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds"))  
-} else {
-  s.obj.lvpv <- readRDS(file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds"))
-}
-
-```
-
-
-```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
-DimPlot(object = s.obj.lvpv, reduction = "INTE_TSNE", group.by = "Maier_prediction", label = TRUE, label.box = TRUE, repel = TRUE)
-```
-
-
-```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=20, fig.height=20}
-DimPlot(object = s.obj.lvpv, reduction = "INTE_TSNE", split.by = "Maier_prediction", label = TRUE, label.box = TRUE, repel = TRUE, ncol = 2)
-```
-
-Number of cells assigned to each cell type 
-```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
-table(s.obj.lvpv@meta.data$Maier_prediction) %>% as.data.frame() %>% create_dt()
-```
-
-

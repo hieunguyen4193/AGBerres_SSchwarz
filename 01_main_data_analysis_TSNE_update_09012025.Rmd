@@ -107,9 +107,7 @@ s.obj <- AddMetaData(object = s.obj, metadata = merge.annotation$annotated.cell,
 
 ##### Add TSNE
 s.obj <- RunTSNE(s.obj, reduction = "INTE_PCA", dims = 1:30, reduction.name="INTE_TSNE")
-
 ```
-
 
 # Preprocessing and QC for GEX data
 ## Raw data Quality control  {.tabset}
@@ -122,48 +120,6 @@ for (plot.name in names(s.obj@misc$all.QC)){
     # plots or tables that we want to show in tabs
     #####
     print(s.obj@misc$all.QC[plot.name])
-    cat(' \n \n')
-}
-```
-
-
-
-## Ambient RNA background correction 
-
-### DecontX clusters {.tabset}
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-for (plot.name in names(s.obj@misc$ambient.cluster.RNA.plot)){
- 
-    cat('####',plot.name,'{.unlisted .unnumbered} \n')
-    
-    ##### 
-    # plots or tables that we want to show in tabs
-    #####
-    print(s.obj@misc$ambient.cluster.RNA.plot[plot.name])
-    cat(' \n \n')
-}
-```
-
-### Contamination level in each sample
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-ggplot(s.obj@meta.data, aes(x=name, y=AmbientRNA)) + 
-  geom_boxplot()
-
-```
-
-
-### Ambient RNA contamination level {.tabset}
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-for (plot.name in names(s.obj@misc$ambient.contamination.plot)){
- 
-    cat('####',plot.name,'{.unlisted .unnumbered} \n')
-    
-    ##### 
-    # plots or tables that we want to show in tabs
-    #####
-    print(s.obj@misc$ambient.contamination.plot[plot.name])
     cat(' \n \n')
 }
 ```
@@ -409,7 +365,6 @@ for (hashtag in rownames(s.obj.HTO[["HTO"]])){
 
 ## Illustration by Violin plot {.tabset}
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=12, fig.height=12}
-
 for (hashtag in rownames(s.obj.HTO[["HTO"]])){
   cat(sprintf("### %s \n", hashtag))
   p <- VlnPlot(s.obj.HTO, assay = "HTO", features = c(hashtag)) + theme(legend.position = "none")
@@ -435,113 +390,32 @@ for (cluster.id in sort(unique(s.obj@meta.data$seurat_clusters))){
 ```
 
 ## Full tables of DE genes {.tabset}
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-row.names(cluster.markers) <- NULL 
-```
-### Cluster 0
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 0
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
+```{r echo=FALSE, results='asis', include=FALSE}
+cluster.markers %>% create_dt()
 ```
 
-### Cluster 1
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 1
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 2
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 2
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 3
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 3
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 4
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 4
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 5
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 5
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 6
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 6
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 7
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 7
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 8
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 8
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 9
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 9
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 10
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 10
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 11
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 11
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 12
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 12
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 13
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 13
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
-### Cluster 14
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-cluster.id <- 14
-tmp.cluster.markers <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC))
-tmp.cluster.markers %>% mutate_if(is.numeric, round, 6) %>% create_dt()
+all.cluster.ids <- sort(unique(s.obj$seurat_clusters))
+for (cluster.id in all.cluster.ids){
+  tmp.table <- subset(cluster.markers, cluster.markers$cluster == cluster.id) %>% arrange(desc(avg_log2FC)) %>% rownames_to_column("Gene")
+  cat(paste("\n\n### Cluster: ", cluster.id, "##\n"))
+  print( htmltools::tagList(datatable(tmp.table, extensions = 'Buttons',
+                                      filter = "top",
+                                      options = list(dom = 'Blfrtip',
+                                                     buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                                                     lengthMenu = list(c(10,25,50,-1),
+                                                                       c(10,25,50,"All")),
+                                                     columnDefs = list(list(
+                                                       targets = "_all",
+                                                       render = JS(
+                                                         "function(data, type, row, meta) {",
+                                                         "return type === 'display' && data != null && data.length > 100 ?",
+                                                         "'<span title=\"' + data + '\">' + data.substr(0, 100) + '...</span>' : data;",
+                                                         "}")
+                                                     ))
+                                      ))))
+  cat("\n \n")  
+}
 ```
 
 # Cell annotation
@@ -592,14 +466,6 @@ count.cells.df <- count.cells.df %>% rowwise() %>%
 count.cells.df %>% create_dt()
 ```
 
-## Number of each cell type in a sample, bar plot
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=13, fig.height=8}
-count.cells.df.barplot <- count.cells.df %>% subset(select = c(cell.annotation, num.cells.LV20, num.cells.LV21, num.cells.PV20, num.cells.PV21)) %>% 
-  pivot_longer(!cell.annotation, values_to = "count", names_to = "sample")
-
-ggplot(count.cells.df.barplot, aes(x = cell.annotation, y = count, fill = sample)) + geom_bar(stat = "identity", position=position_dodge())
-```
-
 # TSNE: cell annotation
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
 DimPlot(object = s.obj, reduction = "INTE_TSNE", label = TRUE, label.box = TRUE, label.size = 10, pt.size = 1, repel = TRUE) +
@@ -639,763 +505,149 @@ We perform differential gene expression analysis between all two LV vs. all two 
 
 - **Negative** `avg_log2FC` indicates that the gene is highly expressed in `PV` samples.
 
-## B cells
-
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`B-cell`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["B-cell"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-
-
+for (input.celltype in names(cells)){
+  s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
+  tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
+  all.LV.vs.all.PV[[input.celltype]] <- tmp.de.markers
+}
 ```
 
 
-## CDP
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`CDP`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["CDP"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-
-```
-
-## DC1
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC1`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["DC1"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-
-```
-
-## DC2
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC2`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["DC2"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-
-```
-
-## DC3
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC3`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["DC3"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
+```{r echo=FALSE, results='asis', include=FALSE}
+all.LV.vs.all.PV$CDP %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
 ```
 
 
-## MDP
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MDP`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["MDP"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MDP 16+
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MDP 16+`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["MDP 16+"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_0
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_0`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["MoMac_0"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_1
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`Momac_1`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["MoMac_1"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_12
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_12`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["MoMac_12"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_2
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_2`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-all.LV.vs.all.PV[["MoMac_2"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_6
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_6`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["MoMac_6"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-
-## MoMac_7
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_7`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["MoMac_7"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-
-## NCM
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`NCM`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-all.LV.vs.all.PV[["NCM"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## pDC
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-s.obj.at.cluster <- subset(s.obj, cells = cells$`pDC`)
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-all.LV.vs.all.PV[["pDC"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
+for (cluster.id in names(all.LV.vs.all.PV)){
+  tmp.table <- all.LV.vs.all.PV[[cluster.id]] %>% 
+    subset(p_val_adj <= 0.05) %>% 
+    rownames_to_column("Gene") %>% 
+    mutate_if(is.numeric, round, 6)
+  cat(paste("\n\n### Cluster: ", cluster.id, "##\n"))
+  print( htmltools::tagList(datatable(tmp.table, extensions = 'Buttons',
+                                      filter = "top",
+                                      options = list(dom = 'Blfrtip',
+                                                     buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                                                     lengthMenu = list(c(10,25,50,-1),
+                                                                       c(10,25,50,"All")),
+                                                     columnDefs = list(list(
+                                                       targets = "_all",
+                                                       render = JS(
+                                                         "function(data, type, row, meta) {",
+                                                         "return type === 'display' && data != null && data.length > 100 ?",
+                                                         "'<span title=\"' + data + '\">' + data.substr(0, 100) + '...</span>' : data;",
+                                                         "}")
+                                                     ))
+                                      ))))
+  cat("\n \n")  
+}
 ```
 
 # Differential gene expression analysis LV20 vs PV20 {.tabset}
 
-We perform differential gene expression analysis between LV20 vs PV20 in all clusters
+We perform differential gene expression analysis between all two LV vs. all two PV samples in all clusters
 
 **Note:**
-
+  
 - **Positive** `avg_log2FC` indicates that the gene is highly expressed in `LV` samples. 
 
 - **Negative** `avg_log2FC` indicates that the gene is highly expressed in `PV` samples.
 
-
-## B cells
-
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`B-cell`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-LV20.vs.PV20[["B-cell"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
+for (input.celltype in names(cells)){
+  s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
+  s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
+  
+  tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
+  LV20.vs.PV20[[input.celltype]] <- tmp.de.markers
+}
 ```
 
 
-## CDP
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`CDP`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-LV20.vs.PV20[["CDP"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## DC1
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC1`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-
-LV20.vs.PV20[["DC1"]] <- tmp.de.markers
-
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## DC2
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC2`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["DC2"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## DC3
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC3`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["DC3"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
+```{r echo=FALSE, results='asis', include=FALSE}
+LV20.vs.PV20$CDP %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
 ```
 
 
-## MDP
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MDP`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MDP"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
+for (cluster.id in names(LV20.vs.PV20)){
+  tmp.table <- LV20.vs.PV20[[cluster.id]] %>% 
+    subset(p_val_adj <= 0.05) %>% 
+    rownames_to_column("Gene") %>% 
+    mutate_if(is.numeric, round, 6)
+  cat(paste("\n\n### Cluster: ", cluster.id, "##\n"))
+  print( htmltools::tagList(datatable(tmp.table, extensions = 'Buttons',
+                                      filter = "top",
+                                      options = list(dom = 'Blfrtip',
+                                                     buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                                                     lengthMenu = list(c(10,25,50,-1),
+                                                                       c(10,25,50,"All")),
+                                                     columnDefs = list(list(
+                                                       targets = "_all",
+                                                       render = JS(
+                                                         "function(data, type, row, meta) {",
+                                                         "return type === 'display' && data != null && data.length > 100 ?",
+                                                         "'<span title=\"' + data + '\">' + data.substr(0, 100) + '...</span>' : data;",
+                                                         "}")
+                                                     ))
+                                      ))))
+  cat("\n \n")  
+}
 ```
-
-## MDP 16+
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MDP 16+`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MDP 16+"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_0
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_0`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MoMac_0"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_1
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`Momac_1`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MoMac_1"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_12
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_12`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MoMac_12"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_2
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_2`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MoMac_2"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_6
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_6`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MoMac_6"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-
-## MoMac_7
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_7`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["MoMac_7"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-
-## NCM
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`NCM`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["NCM"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## pDC
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-s.obj.at.cluster <- subset(s.obj, cells = cells$`pDC`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV20.vs.PV20[["pDC"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
 
 # Differential gene expression analysis LV21 vs PV21 {.tabset}
 
-We perform differential gene expression analysis between LV21 vs PV21 in all clusters
+We perform differential gene expression analysis between all two LV vs. all two PV samples in all clusters
 
 **Note:**
-
+  
 - **Positive** `avg_log2FC` indicates that the gene is highly expressed in `LV` samples. 
 
 - **Negative** `avg_log2FC` indicates that the gene is highly expressed in `PV` samples.
 
-## B cells
-
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-# s.obj.at.cluster <- subset(s.obj, cells = cells$`B-cell`)
-# 
-# s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-# 
-# tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-# 
-# tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-# 
-# tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-data.frame(data = c("no cell found")) %>% create_dt()
-LV21.vs.PV21[["B-cell"]] <- data.frame()
+for (input.celltype in names(cells)){
+  s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
+  s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
+  
+  tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
+  LV21.vs.PV21[[input.celltype]] <- tmp.de.markers
+}
 ```
 
 
-## CDP
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`CDP`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["CDP"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## DC1
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC1`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["DC1"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## DC2
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC2`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["DC2"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## DC3
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`DC3`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["DC3"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
+```{r echo=FALSE, results='asis', include=FALSE}
+LV21.vs.PV21$CDP %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
 ```
 
 
-## MDP
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MDP`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MDP"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
+for (cluster.id in names(LV21.vs.PV21)){
+  tmp.table <- LV21.vs.PV21[[cluster.id]] %>% 
+    subset(p_val_adj <= 0.05) %>% 
+    rownames_to_column("Gene") %>% 
+    mutate_if(is.numeric, round, 6)
+  cat(paste("\n\n### Cluster: ", cluster.id, "##\n"))
+  print( htmltools::tagList(datatable(tmp.table, extensions = 'Buttons',
+                                      filter = "top",
+                                      options = list(dom = 'Blfrtip',
+                                                     buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+                                                     lengthMenu = list(c(10,25,50,-1),
+                                                                       c(10,25,50,"All")),
+                                                     columnDefs = list(list(
+                                                       targets = "_all",
+                                                       render = JS(
+                                                         "function(data, type, row, meta) {",
+                                                         "return type === 'display' && data != null && data.length > 100 ?",
+                                                         "'<span title=\"' + data + '\">' + data.substr(0, 100) + '...</span>' : data;",
+                                                         "}")
+                                                     ))
+                                      ))))
+  cat("\n \n")  
+}
 ```
-
-## MDP 16+
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MDP 16+`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MDP 16+"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_0
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_0`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MoMac_0"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_1
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`Momac_1`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MoMac_1"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_12
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_12`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MoMac_12"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_2
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_2`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MoMac_2"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## MoMac_6
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_6`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MoMac_6"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-
-## MoMac_7
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`MoMac_7`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["MoMac_7"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-
-## NCM
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-
-s.obj.at.cluster <- subset(s.obj, cells = cells$`NCM`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["NCM"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-
-```
-
-## pDC
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-s.obj.at.cluster <- subset(s.obj, cells = cells$`pDC`)
-
-s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-
-tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-LV21.vs.PV21[["pDC"]] <- tmp.de.markers
-tmp.de.markers <- tmp.de.markers %>% subset(p_val_adj <= 0.05)
-
-tmp.de.markers %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
-```
-
 
 # TSNE with highlighted DC1, DC2, DC3 and NCM, the rest in gray
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
@@ -2115,11 +1367,5 @@ for (group in names(available.genes)){
   print(p)
   cat("\n \n")
 }
-
-```
-
-# New update 01.2025
-
-```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
 
 ```
