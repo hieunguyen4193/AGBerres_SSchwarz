@@ -166,3 +166,58 @@ for (cluster.id in unique(cluster.markers$cluster)){
   cat("\n \n")
 }
 ```
+
+# Merge with our dataset
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+rerun <- FALSE
+if (file.exists(file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds")) == FALSE | rerun  == TRUE){
+  s.obj.lvpv <- readRDS(file.path(path.to.outdir, "220311_Berres_MiedIII_scCITEseq", "data_analysis", "01_output_21092023", "s_obj.annotated.integrated.tsne.rds"))
+  DefaultAssay(s.obj.lvpv) <- "RNA"
+  ##### Integrate and transfer label
+  anchors <- FindTransferAnchors(reference = s.obj, query = s.obj.lvpv, dims = 1:25, query.assay = "RNA", reference.assay = "RNA", k.anchor = 200)
+  predictions <- TransferData(anchorset = anchors, refdata = s.obj$celltype)
+      
+  s.obj.lvpv <- AddMetaData(s.obj.lvpv, metadata = predictions$predicted.id, col.name = "Maier_prediction")
+  saveRDS(s.obj.lvpv, file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds"))  
+} else {
+  s.obj.lvpv <- readRDS(file.path(path.to.03.output, "s_obj.annotated.integrated.tsne.mergedMaierData.rds"))
+}
+```
+
+## TSNE: cluster annotation with cell type prediction from Maier et al data
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+DimPlot(object = s.obj.lvpv, reduction = "INTE_TSNE", label = TRUE, label.box = TRUE, group.by = "Maier_prediction")
+```
+
+## Count predicted labels in each clusters in all samples
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+meta.data <- s.obj.lvpv@meta.data %>% rownames_to_column("barcode")
+
+count.in.all <- table(meta.data$seurat_clusters, meta.data$Maier_prediction) %>% as.data.frame() %>%
+  pivot_wider(names_from = "Var2", values_from = "Freq")
+colnames(count.in.all) <- c("clusterID", "DC1", "DC2", "mregDC")
+count.in.all %>% create_dt()
+```
+
+## Count predicted labels in each clusters in all LV samples
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+meta.data <- subset(s.obj.lvpv, name %in% c("LV20", "LV21"))@meta.data %>% rownames_to_column("barcode")
+
+count.inLV <- table(meta.data$seurat_clusters, meta.data$Maier_prediction) %>% as.data.frame() %>%
+  pivot_wider(names_from = "Var2", values_from = "Freq")
+colnames(count.inLV) <- c("clusterID", "DC1", "DC2", "mregDC")
+count.inLV %>% create_dt()
+```
+
+## Count predicted labels in each clusters in all PV samples
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+meta.data <- subset(s.obj.lvpv, name %in% c("PV20", "PV21"))@meta.data %>% rownames_to_column("barcode")
+
+count.inPV <- table(meta.data$seurat_clusters, meta.data$Maier_prediction) %>% as.data.frame() %>%
+  pivot_wider(names_from = "Var2", values_from = "Freq")
+colnames(count.inPV) <- c("clusterID", "DC1", "DC2", "mregDC")
+count.inPV %>% create_dt()
+```
+
+```{r results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+```

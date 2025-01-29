@@ -506,11 +506,17 @@ We perform differential gene expression analysis between all two LV vs. all two 
 - **Negative** `avg_log2FC` indicates that the gene is highly expressed in `PV` samples.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-for (input.celltype in names(cells)){
-  s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
-  tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-  all.LV.vs.all.PV[[input.celltype]] <- tmp.de.markers
+if (file.exists(file.path(path.to.01.output, "all.LV.vs.all.PV.rds")) == FALSE){
+  for (input.celltype in names(cells)){
+    s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
+    tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
+    all.LV.vs.all.PV[[input.celltype]] <- tmp.de.markers
+  }
+  saveRDS(all.LV.vs.all.PV, file.path(path.to.01.output, "all.LV.vs.all.PV.rds"))  
+} else {
+  all.LV.vs.all.PV <- readRDS(file.path(path.to.01.output, "all.LV.vs.all.PV.rds"))
 }
+
 ```
 
 
@@ -556,13 +562,20 @@ We perform differential gene expression analysis between all two LV vs. all two 
 - **Negative** `avg_log2FC` indicates that the gene is highly expressed in `PV` samples.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-for (input.celltype in names(cells)){
+if (file.exists(file.path(path.to.01.output, "LV20.vs.PV20.rds")) == FALSE){
+  for (input.celltype in names(cells)){
   s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
   s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV20", "PV20"))
   
   tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
   LV20.vs.PV20[[input.celltype]] <- tmp.de.markers
+  }
+  saveRDS(LV20.vs.PV20, file.path(path.to.01.output, "LV20.vs.PV20.rds"))
+} else {
+  LV20.vs.PV20 <- readRDS(file.path(path.to.01.output, "LV20.vs.PV20.rds"))
 }
+
+
 ```
 
 
@@ -608,27 +621,40 @@ We perform differential gene expression analysis between all two LV vs. all two 
 - **Negative** `avg_log2FC` indicates that the gene is highly expressed in `PV` samples.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=20, fig.height=12}
-for (input.celltype in names(cells)){
-  s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
-  s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
-  
-  tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
-  LV21.vs.PV21[[input.celltype]] <- tmp.de.markers
+if (file.exists(file.path(path.to.01.output, "LV21.vs.PV21.rds")) == FALSE){
+  for (input.celltype in names(cells)){
+  if (input.celltype != "B-cell"){
+    s.obj.at.cluster <- subset(s.obj, cells = cells[[input.celltype]])
+    s.obj.at.cluster <- subset(s.obj.at.cluster, name %in% c("LV21", "PV21"))
+    
+    tmp.de.markers <- FindMarkers(object = s.obj.at.cluster, assay = "RNA", ident.1 = "LV", ident.2 = "PV", group.by = "stage")
+    LV21.vs.PV21[[input.celltype]] <- tmp.de.markers    
+  } else {
+    LV21.vs.PV21[["B-cell"]] <- data.frame()
+  }
 }
-```
+saveRDS(LV21.vs.PV21, file.path(path.to.01.output, "LV21.vs.PV21.rds"))
+} else {
+  LV21.vs.PV21 <- readRDS(file.path(path.to.01.output, "LV21.vs.PV21.rds"))
+}
 
+```
 
 ```{r echo=FALSE, results='asis', include=FALSE}
 LV21.vs.PV21$CDP %>% rownames_to_column("Gene") %>% mutate_if(is.numeric, round, 6) %>% create_dt()
 ```
 
-
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
 for (cluster.id in names(LV21.vs.PV21)){
-  tmp.table <- LV21.vs.PV21[[cluster.id]] %>% 
+  if (cluster.id != "B-cell"){
+   tmp.table <- LV21.vs.PV21[[cluster.id]] %>% 
     subset(p_val_adj <= 0.05) %>% 
     rownames_to_column("Gene") %>% 
-    mutate_if(is.numeric, round, 6)
+    mutate_if(is.numeric, round, 6)    
+  } else {
+    tmp.table <- data.frame(status = c("no data available"))
+  }
+
   cat(paste("\n\n### Cluster: ", cluster.id, "##\n"))
   print( htmltools::tagList(datatable(tmp.table, extensions = 'Buttons',
                                       filter = "top",
@@ -672,20 +698,30 @@ s.obj.PV <- subset(s.obj, stage == "PV")
 cluster_of_interest <- c("DC1", "DC2", "DC3", "NCM")
 
 gene_of_interest <- hash()
-gene_of_interest[["Maturation"]] <- c("CD40", "CD86", "RELB", "CD83")
-gene_of_interest[["Regulatory"]] <- c("FAS", "BIRC3", "MARCKSL1")
+
+##### set of genes to show on the heatmap, 2022
+# gene_of_interest[["Maturation"]] <- c("CD40", "CD86", "RELB", "CD83")
+# gene_of_interest[["Regulatory"]] <- c("FAS", "BIRC3", "MARCKSL1")
+# gene_of_interest[["TLRs_and_Adaptors"]] <- c("TICAM1", "TLR8", "TLR7", "TLR6", "TLR5", "TLR4", "TLR2", "TLR1")
+# gene_of_interest[["Migration"]] <- c("CCR7", "MYO1G", "CXCL16", "ADAM8", "ICAM1", "FSCN1", "MARCKS", "MARCKSL1")
+
+##### new set of genes to show on the heatmap, 2025
+gene_of_interest[["Maturation"]] <- c("CD40", "CD86", "RELB", "CD83", "LAMP3", "CD80", "Il12b")
+gene_of_interest[["Regulatory"]] <- c("FAS", "BIRC3", "MARCKSL1",
+                                      "PD-L1", "PD-L2", "TIM-3", "IDO1", "CD200", "CD274", "PDCD1LG2", "ALDH1A2")
 gene_of_interest[["TLRs_and_Adaptors"]] <- c("TICAM1", "TLR8", "TLR7", "TLR6", "TLR5", "TLR4", "TLR2", "TLR1")
-gene_of_interest[["Migration"]] <- c("CCR7", "MYO1G", "CXCL16", "ADAM8", "ICAM1", "FSCN1", "MARCKS", "MARCKSL1")
+gene_of_interest[["Migration"]] <- c("CCR7", "MYO1G", "CXCL16", "ADAM8", "ICAM1", "FSCN1", "MARCKS", "MARCKSL1",
+                                     "CCL17", "CCL19", "CCL22")
 ```
+
 ## List of genes to be shown on the heatmap
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
+for (group.name in names(gene_of_interest)){
+  print(sprintf("Gene group: %s \n", group.name))
+  print(sprintf("List of genes: %s \n", paste(gene_of_interest[[group.name]], collapse = ", ")))
+}
+```
 
-- Maturation: "CD40", "CD86", "RELB", "CD83"
-
-- Regulatory: "FAS", "ALDH1A2", "SOCS1", "SOCS2", "BIRC3", "MARCKSL1"
-
-- TLRs and Adaptors: "TICAM1", "TLR9", "TLR8", "TLR7", "TLR6", "TLR5", "TLR4", "TLR2", "TLR1"
-
-- Migration: "CCR7", "MYO1G", "CXCL16", "ADAM8", "ICAM1", "FSCN1", "MARCKS", "MARCKSL1"
 
 ## Internal comparison between clusters in each LV, PV 2-sample 
 
@@ -1369,3 +1405,35 @@ for (group in names(available.genes)){
 }
 
 ```
+
+# Update 01.2025
+
+## Change annotations for clusters 10-13
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
+convert.new.annotations <- list(
+  "10" = "unspecified early progenitors (UEP)",
+  "11" = "immature monocytes (IM)",
+  "12" = "CDP",
+  "13" = "MDP"
+)
+
+meta.data <- s.obj@meta.data %>% rownames_to_column("barcode") %>%
+  rowwise() %>% 
+  mutate(new.cell.annotation = ifelse(
+    seurat_clusters %in% names(convert.new.annotations),
+    convert.new.annotations[[sprintf("%s", seurat_clusters)]],
+    cell.annotation
+  )) %>%
+  column_to_rownames("barcode")
+
+meta.data <- meta.data[row.names(s.obj@meta.data), ]
+s.obj <- AddMetaData(object = s.obj, metadata = meta.data$new.cell.annotation, col.name = "new.cell.annotation")
+
+saveRDS(s.obj, file.path(path.to.01.output, "s_obj.annotated.integrated.tsne.NewAnnotation.rds"))
+```
+
+### New TSNE plot with new cell annotation
+```{r echo=FALSE, warning=FALSE, message=FALSE, results='asis', fig.width=14, fig.height=10}
+DimPlot(object = s.obj, reduction = "INTE_TSNE", label = TRUE, label.box = TRUE, repel = TRUE, group.by = "new.cell.annotation")
+```
+
